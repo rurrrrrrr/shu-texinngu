@@ -1,5 +1,5 @@
 //変数の定義
-let mode = 1;
+let mode = 0;
 let gameTime;
 let score;
 
@@ -44,7 +44,10 @@ function draw() {
     background(0);
 
     if (mode == 0) {
-
+        //スタート
+        fill("#FFFFFF");
+        textAlign(CENTER);
+        text("クリックしてスタート", width / 2,height / 2);
     }
     if (mode == 1) {
         //自機を動かす
@@ -69,6 +72,22 @@ function draw() {
         for (let i = 0; i < bulletY.length; i++) {
             bulletY[i] -= 10;
         }
+        //敵と玉
+        for (let i = 0; i < enemyX.length; i++) {
+            for (let j = 0; j < bulletX.length; j++) {
+                if(!enemyHit[i] &&
+                   !bulletHit[j] &&
+                   enemyX[i] - 30 < bulletX[j] &&
+                   bulletX[j] < enemyX[i] + 30 &&
+                   enemyY[i] - 20 < bulletY[j] &&
+                   bulletY[j] < enemyY[i] + 20) {
+                enemyHit[i] = true;
+                bulletHit[j] = true;
+                score++;
+                }
+            }
+        }
+
         //自機を表示
         imageMode(CENTER);
         image(playerImage, playerX, playerY, 50, 50);
@@ -84,9 +103,25 @@ function draw() {
                 image(bulletImage, bulletX[i], bulletY[i], 20, 20);
             }
         }
+        //スコア
+        fill("#FFFFFF");
+        textAlign(LEFT);
+        text("SCORE: " + score,10,20);
+
+        //時間
+        let timeLimit = 10 - floor((millis() - gameTime) / 1000);
+        textAlign(RIGHT);
+        text("TIME: " + timeLimit, width - 10,20);
+        if(timeLimit <= 0) {
+            mode = 2;
+        }
     }
     if (mode == 2) {
-
+        textAlign(CENTER);
+        textSize(18);
+        text("SCORE: " + score, width / 2, height / 2 - 50);
+        textSize(12);
+        text("クリックしてスタート画面に戻る", width / 2, height /2);
     }
 }
 
@@ -100,9 +135,12 @@ function keyPressed() {
 }
 function mousePressed() {
     if (mode == 0) {
+        setup();
+        gameTime = millis();
 
+        mode = 1;
     }
     if (mode == 2) {
-
+        mode = 0;
     }
 }
