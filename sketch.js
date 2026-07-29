@@ -15,6 +15,7 @@ let enemyTime;
 let enemySpawnMarkerX;
 let enemySpawnMarkerY;
 let enemySpawnMarkerStartTime;
+let enemySpawnMarkerHits;
 
 let bulletImage;
 let bulletX;
@@ -22,9 +23,9 @@ let bulletY;
 let bulletHit;
 
 function preload() {
-    playerImage = loadImage("gazou/player.png");
-    enemyImage = loadImage("gazou/enemy.png");
-    bulletImage = loadImage("gazou/bullet.png");
+    playerImage = loadImage("gazou/IMG_1116.JPG");
+    enemyImage = loadImage("gazou/IMG_1115.JPG");
+    bulletImage = loadImage("gazou/ball02_white.png");
 }
 
 function setup() {
@@ -40,6 +41,7 @@ function setup() {
     enemySpawnMarkerX = null;
     enemySpawnMarkerY = 0;
     enemySpawnMarkerStartTime = 0;
+    enemySpawnMarkerHits = 0;
     bulletX = [];
     bulletY = [];
     bulletHit = [];
@@ -54,6 +56,9 @@ function draw() {
         fill("#FFFFFF");
         textAlign(CENTER);
         text("クリックしてスタート", width / 2,height / 2);
+         text("黄色いマーカーから敵がでてくる",width / 2, height / 2 +20)
+        text("黄色いマーカーに二発あてると２点、敵にあてると１点", width / 2, height / 2 + 40);
+       
     }
     if (mode == 1) {
         //自機を動かす
@@ -68,9 +73,30 @@ function draw() {
             enemySpawnMarkerX = random(0, width);
             enemySpawnMarkerY = 0;
             enemySpawnMarkerStartTime = millis();
+            enemySpawnMarkerHits = 0;
         }
         
-        if (enemySpawnMarkerX !== null && millis() - enemySpawnMarkerStartTime > 1000) {
+        //敵出現マーカーを玉で壊す（2発必要）
+        if (enemySpawnMarkerX !== null) {
+            for (let j = 0; j < bulletX.length; j++) {
+                if (!bulletHit[j]) {
+                    let dx = enemySpawnMarkerX - bulletX[j];
+                    let dy = enemySpawnMarkerY - bulletY[j];
+                    if (sqrt(dx * dx + dy * dy) < 30) {
+                        bulletHit[j] = true;
+                        enemySpawnMarkerHits++;
+                        if (enemySpawnMarkerHits >= 2) {
+                            enemySpawnMarkerX = null;
+                            enemyTime = millis();
+                            score += 2;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (enemySpawnMarkerX !== null && millis() - enemySpawnMarkerStartTime > 1200) {
             enemyX.push(enemySpawnMarkerX);
             enemyY.push(0);
             enemyHit.push(false);
@@ -80,7 +106,7 @@ function draw() {
 
         //敵を動かす
         for (let i = 0; i < enemyY.length; i++) {
-            enemyY[i] += 50;
+            enemyY[i] += 70;
         }
 
         //球を動かす
@@ -114,7 +140,7 @@ function draw() {
 
         //自機を表示
         imageMode(CENTER);
-        image(playerImage, playerX, playerY, 50, 50);
+        image(playerImage, playerX, playerY, 80, 70);
 
         //敵を表示
         for (let i = 0; i < enemyX.length; i++) {
